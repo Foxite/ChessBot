@@ -1,24 +1,20 @@
-﻿using System.Diagnostics;
-using ChessBot;
+﻿using ChessBot;
 using ChessBot.Model;
-using Newtonsoft.Json;
 
 string apiToken = Environment.GetEnvironmentVariable("API_TOKEN");
+string gameId = "5G3Phnz2eWn0";
 
 var lichess = new LichessApiClient(new HttpClient(), apiToken);
 
-string gameId = "gHFGXAy9";
+GameContext game = lichess.Open(gameId);
 
-Task.Run(async () => {
-	try {
-		await foreach (BoardStreamEvent evt in lichess.StreamBoardEvents(gameId)) {
-			Console.WriteLine("EVENT:");
-			Console.WriteLine(JsonConvert.SerializeObject(evt, Formatting.Indented));
-		}
-	} catch (Exception e) {
-		Console.WriteLine(e.ToStringDemystified());
-	}
-});
+game.ChatLine += (_, chat) => {
+	Console.WriteLine($"[CHAT] {chat.Room}/{chat.Username}: {chat.Text}");
+};
+
+game.GameState += (_, state) => {
+	Console.WriteLine($"[STATE] Status: {state.Status}; Moves: {state.Moves}; Winner: {state.Winner?.ToString() ?? "null"}");
+};
 
 while (true) {
 	Console.Write("Command: ");
@@ -27,18 +23,18 @@ while (true) {
 		case "move":
 			Console.Write("Move: ");
 			string move = Console.ReadLine();
-			lichess.Move(gameId, move);
+			await lichess.Move(gameId, move);
 			break;
 		case "chat":
 			Console.Write("Text: ");
 			string text = Console.ReadLine();
-			lichess.SendChatMessage(gameId, Room.Player, text);
+			await lichess.SendChatMessage(gameId, Room.Player, text);
 			break;
 		case "abort":
-			lichess.AbortGame(gameId);
+			await lichess.AbortGame(gameId);
 			break;
 		case "resign":
-			lichess.ResignGame(gameId);
+			await lichess.ResignGame(gameId);
 			break;
 	}
 }

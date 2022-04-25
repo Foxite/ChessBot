@@ -1,7 +1,12 @@
+using System.Text.Json.Serialization;
+using Newtonsoft.Json.Linq;
+
 namespace ChessBot.Model;
 
 public class BoardStreamEvent {
 	public BoardStreamEventType Type { get; set; }
+	[JsonIgnore]
+	public JToken Token { get; set; }
 }
 
 public class GameFullBoardStreamEvent : BoardStreamEvent {
@@ -10,7 +15,7 @@ public class GameFullBoardStreamEvent : BoardStreamEvent {
 	public Variant Variant { get; set; }
 	public Clock Clock { get; set; }
 	// TODO enum
-	// classical,
+	// classical, correspondence,
 	public string Speed { get; set; }
 	public Perf Perf { get; set; }
 	public long CreatedAt { get; set; }
