@@ -1,21 +1,23 @@
+using ChessBot.Model;
+
 namespace ChessBot;
 
 public struct Side : IEquatable<Side> {
-	public static readonly Side Bot = new Side(true);
-	public static readonly Side Opponent = new Side(false);
+	public static readonly Side Black = new Side(true);
+	public static readonly Side White = new Side(false);
 	
-	private readonly bool m_IsBot;
+	private readonly bool m_IsBlack;
 
-	private Side(bool isBot) {
-		m_IsBot = isBot;
+	private Side(bool isBlack) {
+		m_IsBlack = isBlack;
 	}
 
 	public static Side operator !(Side side) {
-		return new Side(!side.m_IsBot);
+		return new Side(!side.m_IsBlack);
 	}
 
 	public bool Equals(Side other) {
-		return m_IsBot == other.m_IsBot;
+		return m_IsBlack == other.m_IsBlack;
 	}
 
 	public override bool Equals(object? obj) {
@@ -23,7 +25,7 @@ public struct Side : IEquatable<Side> {
 	}
 
 	public override int GetHashCode() {
-		return m_IsBot.GetHashCode();
+		return m_IsBlack.GetHashCode();
 	}
 
 	public static bool operator ==(Side left, Side right) {
@@ -31,6 +33,14 @@ public struct Side : IEquatable<Side> {
 	}
 
 	public static bool operator !=(Side left, Side right) {
-		return !left.Equals(right);
+		return !(left == right);
+	}
+
+	public static implicit operator BlackOrWhite(Side side) {
+		return side == Black ? BlackOrWhite.Black : BlackOrWhite.White;
+	}
+
+	public static implicit operator Side(BlackOrWhite blackOrWhite) {
+		return blackOrWhite == BlackOrWhite.Black ? Side.Black : Side.White;
 	}
 }
